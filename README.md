@@ -23,10 +23,11 @@ A **real-time chat application** built with the **MERN stack**, **Socket.IO**, a
 
 ## 📁 Project Structure
 
+```plaintext
 chat-app/
-├── backend/    # Node.js, Express, MongoDB, Socket.IO
-├── frontend/   # React, Vite, Zustand, TailwindCSS, DaisyUI
-├── package.json # Root scripts to manage build/start
+├── backend/      # Node.js, Express, MongoDB, Socket.IO
+├── frontend/     # React, Vite, Zustand, TailwindCSS, DaisyUI
+├── package.json  # Root scripts to manage build/start
 
 ---
 
