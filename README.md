@@ -1,7 +1,7 @@
 # 💬 Full-Stack Chat Application 
 
 ## 🚀 Live Demo
-👉 [View Live App](https://chat-app-frontend.vercel.app)
+👉 [View Live App](https://vchatappl.onrender.com/)
 
 A **real-time chat application** built with the **MERN stack**, **Socket.IO**, and styled using **TailwindCSS + DaisyUI**. It supports user authentication, real-time messaging, online presence, and image uploads — all with seamless deployment for **free**.
 
@@ -24,10 +24,9 @@ A **real-time chat application** built with the **MERN stack**, **Socket.IO**, a
 ## 📁 Project Structure
 
 chat-app/
-├── backend/ # Node.js, Express, MongoDB, Socket.IO
-├── frontend/ # React, Vite, Zustand, TailwindCSS, DaisyUI
+├── backend/    # Node.js, Express, MongoDB, Socket.IO
+├── frontend/   # React, Vite, Zustand, TailwindCSS, DaisyUI
 ├── package.json # Root scripts to manage build/start
-
 
 ---
 
