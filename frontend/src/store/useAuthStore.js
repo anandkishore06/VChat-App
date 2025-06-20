@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
     isCheckingAuth: true,
     onlineUsers: [],
     socket: null,
+    isTyping: {}, // { [userId]: true }
 
     checkAuth: async () => {
         try {
@@ -102,6 +103,52 @@ export const useAuthStore = create((set, get) => ({
             set({ onlineUsers: userIds });
         });
     },
+
+    sendTyping: () => {
+        const { socket } = useAuthStore.getState();
+        const { selectedUser } = get();
+        if (socket && selectedUser) {
+            socket.emit("typing", { to: selectedUser._id });
+        }
+    },
+
+    sendStopTyping: () => {
+        const { socket } = useAuthStore.getState();
+        const { selectedUser } = get();
+        if (socket && selectedUser) {
+            socket.emit("stopTyping", { to: selectedUser._id });
+        }
+    },
+
+    subscribeToTyping: () => {
+        const { socket } = useAuthStore.getState();
+        const { selectedUser } = get();
+        if (!socket || !selectedUser) return;
+
+        socket.on("typing", ({ from }) => {
+            if (from === selectedUser._id) {
+                set((state) => ({
+                    isTyping: { ...state.isTyping, [from]: true }
+                }));
+            }
+        });
+
+        socket.on("stopTyping", ({ from }) => {
+            if (from === selectedUser._id) {
+                set((state) => ({
+                    isTyping: { ...state.isTyping, [from]: false }
+                }));
+            }
+        });
+    },
+
+    unsubscribeFromTyping: () => {
+        const { socket } = useAuthStore.getState();
+        if (!socket) return;
+        socket.off("typing");
+        socket.off("stopTyping");
+    },
+
     disconnectSocket: () => {
         if (get().socket?.connected) get().socket.disconnect();
     },

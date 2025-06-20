@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -7,7 +8,9 @@ const MessageInput = () => {
     const [text, setText] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
-    const { sendMessage } = useChatStore();
+
+    const { sendMessage, selectedUser } = useChatStore();
+    const { authUser, socket } = useAuthStore();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -38,14 +41,33 @@ const MessageInput = () => {
                 image: imagePreview,
             });
 
-            // Clear form
             setText("");
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
+            socket?.emit("stopTyping", { to: selectedUser._id });
         } catch (error) {
             console.error("Failed to send message:", error);
         }
     };
+
+    useEffect(() => {
+        if (!socket || !selectedUser || !authUser) return;
+
+        const typingDelay = 1000;
+        let typingTimeout;
+
+        if (text.trim()) {
+            socket.emit("typing", { to: selectedUser._id });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit("stopTyping", { to: selectedUser._id });
+            }, typingDelay);
+        } else {
+            socket.emit("stopTyping", { to: selectedUser._id });
+        }
+
+        return () => clearTimeout(typingTimeout);
+    }, [text]);
 
     return (
         <div className="p-4 w-full">
@@ -60,7 +82,7 @@ const MessageInput = () => {
                         <button
                             onClick={removeImage}
                             className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+                                flex items-center justify-center"
                             type="button"
                         >
                             <X className="size-3" />
@@ -85,11 +107,9 @@ const MessageInput = () => {
                         ref={fileInputRef}
                         onChange={handleImageChange}
                     />
-
                     <button
                         type="button"
-                        className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+                        className={`hidden sm:flex btn btn-circle ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <Image size={20} />
@@ -106,4 +126,5 @@ const MessageInput = () => {
         </div>
     );
 };
+
 export default MessageInput;

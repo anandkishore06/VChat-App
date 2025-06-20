@@ -25,10 +25,10 @@ const ChatContainer = () => {
     const [loadingSuggestionFor, setLoadingSuggestionFor] = useState(null);
     const [translatedMessages, setTranslatedMessages] = useState({});
     const [selectedLanguages, setSelectedLanguages] = useState({});
-
     const [emotions, setEmotions] = useState({});
     const [emotionVisible, setEmotionVisible] = useState({});
     const [emotionLoading, setEmotionLoading] = useState({});
+    const [isTyping, setIsTyping] = useState(false);
 
     const languageOptions = [
         { code: "English", label: "English" },
@@ -52,6 +52,29 @@ const ChatContainer = () => {
             messageEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
+
+    useEffect(() => {
+        const socket = useAuthStore.getState().socket;
+
+        if (!socket || !selectedUser) return;
+
+        const handleTyping = ({ from }) => {
+            if (from === selectedUser._id) setIsTyping(true);
+        };
+
+        const handleStopTyping = ({ from }) => {
+            if (from === selectedUser._id) setIsTyping(false);
+        };
+
+        socket.on("typing", handleTyping);
+        socket.on("stopTyping", handleStopTyping);
+
+        return () => {
+            socket.off("typing", handleTyping);
+            socket.off("stopTyping", handleStopTyping);
+        };
+    }, [selectedUser?._id]);
+
 
     const handleSuggestReply = async (messageText, messageId) => {
         try {
@@ -290,6 +313,12 @@ const ChatContainer = () => {
                     );
                 })}
             </div>
+            {isTyping && (
+                <div className="px-4 text-sm text-gray-400 italic">
+                    Typing...
+                </div>
+            )}
+
 
             <MessageInput />
         </div>
