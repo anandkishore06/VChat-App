@@ -8,8 +8,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: process.env.NODE_ENV === "production"
-            ? "https://vchatappl.onrender.com" // 👈 your frontend domain
-            : "http://localhost:5001",
+            ? "https://vchat-app-6.onrender.com" // ✅ your frontend domain
+            : "http://localhost:5173",
         credentials: true
     },
 });
